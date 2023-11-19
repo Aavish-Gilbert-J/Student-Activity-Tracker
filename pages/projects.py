@@ -83,7 +83,7 @@ def display_projects_page():
     if projects:
         st.subheader("Your Projects:")
         for project in projects:
-            st.write(f"Project: {project[1]}, Description: {project[1]}")
+            st.write(f"Project: {project[0]}, Description: {project[1]}")
             
             # Update deadline form
             with st.form(key=f"update_project_{project[0]}"):
@@ -96,7 +96,7 @@ def display_projects_page():
                 st.success(f"Deadline for '{project[1]}' updated to '{new_deadline}'.")
             
             # Delete project button
-            if st.button(f"Delete {project[1]}"):
+            if st.button(f"Delete {project[0]}"):
                 # Delete project
                 delete_project(project[0])
                 st.success(f"Project '{project[1]}' deleted.")

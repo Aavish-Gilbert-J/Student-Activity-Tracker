@@ -24,7 +24,7 @@ def main():
 
     # Check if the user is logged in
     if "user_id" not in st.session_state:
-        st.session_state.user_id = 5
+        st.session_state.user_id = None
 
     # Navigation
     pages = {
