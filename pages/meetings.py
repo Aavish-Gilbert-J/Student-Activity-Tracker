@@ -2,6 +2,7 @@
 import streamlit as st
 import sqlite3
 from datetime import datetime
+from sqlite3 import IntegrityError  # Added import statement
 
 def create_meetings_table():
     conn = sqlite3.connect("data/student_tracker.db")
@@ -25,9 +26,13 @@ def add_meeting(meeting_name, meeting_date, user_id):
     conn = sqlite3.connect("data/student_tracker.db")
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO meetings (meeting_name, meeting_date, user_id) VALUES (?, ?, ?)", (meeting_name, meeting_date, user_id))
+    try:
+        cursor.execute("INSERT INTO meetings (meeting_name, meeting_date, user_id) VALUES (?, ?, ?)", (meeting_name, meeting_date, user_id))
+        conn.commit()
+        st.success(f"Meeting '{meeting_name}' added on '{meeting_date}'.")
+    except IntegrityError:
+        st.error("Error: Meeting date clashes with an existing meeting.")
 
-    conn.commit()
     conn.close()
 
 def view_meetings(user_id):
@@ -75,7 +80,6 @@ def display_meetings_page():
     if submit_button:
         # Add meeting to the database
         add_meeting(meeting_name, meeting_date, user_id)
-        st.success(f"Meeting '{meeting_name}' added on '{meeting_date}'.")
 
     # View meetings
     meetings = view_meetings(user_id)
@@ -95,7 +99,8 @@ def display_meetings_page():
                 st.success(f"Date for '{meeting[1]}' updated to '{new_meeting_date}'.")
             
             # Delete meeting button
-            if st.button(f"Delete {meeting[1]}"):
+            delete_button_key = f"delete_meeting_{meeting[0]}"
+            if st.button(f"Delete {meeting[1]}", key=delete_button_key):
                 # Delete meeting
                 delete_meeting(meeting[0])
                 st.success(f"Meeting '{meeting[1]}' deleted.")

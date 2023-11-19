@@ -9,23 +9,22 @@ def create_projects_table():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS projects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project_name TEXT NOT NULL,
-            deadline DATE NOT NULL,
+            project_name TEXT NOT NULL primary key,
+            description TEXT NOT NULL,
             user_id INT,
             last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            FOREIGN KEY (user_id) REFERENCES users(project_name)
         )
     ''')
     
     conn.commit()
     conn.close()
 
-def add_project(project_name, deadline, user_id):
+def add_project(project_name, description, user_id):
     conn = sqlite3.connect("data/student_tracker.db")
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO projects (project_name, deadline, user_id) VALUES (?, ?, ?)", (project_name, deadline, user_id))
+    cursor.execute("INSERT INTO projects (project_name, description, user_id) VALUES (?, ?, ?)", (project_name, description, user_id))
 
     conn.commit()
     conn.close()
@@ -36,6 +35,7 @@ def view_projects(user_id):
 
     cursor.execute("SELECT * FROM projects WHERE user_id = ?", (user_id,))
     projects = cursor.fetchall()
+    # print(projects)
 
     conn.close()
     return projects
@@ -44,7 +44,7 @@ def update_project_deadline(project_id, new_deadline):
     conn = sqlite3.connect("data/student_tracker.db")
     cursor = conn.cursor()
 
-    cursor.execute("UPDATE projects SET deadline = ?, last_modified = CURRENT_TIMESTAMP WHERE id = ?", (new_deadline, project_id))
+    cursor.execute("UPDATE projects SET description = ?, last_modified = CURRENT_TIMESTAMP WHERE project_name = ?", (new_deadline, project_id))
 
     conn.commit()
     conn.close()
@@ -53,12 +53,13 @@ def delete_project(project_id):
     conn = sqlite3.connect("data/student_tracker.db")
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM projects WHERE id = ?", (project_id,))
+    cursor.execute("DELETE FROM projects WHERE project_name = ?", (project_id,))
 
     conn.commit()
     conn.close()
 
 def display_projects_page():
+
     st.title("Projects")
 
     # Create projects table if not exists
@@ -69,25 +70,25 @@ def display_projects_page():
     # Add project form
     with st.form("add_project_form"):
         project_name = st.text_input("Project Name:")
-        deadline = st.date_input("Deadline:", min_value=datetime.today())
+        deadline = st.text_input("Description:")
         submit_button = st.form_submit_button("Add Project")
 
     if submit_button:
         # Add project to the database
         add_project(project_name, deadline, user_id)
-        st.success(f"Project '{project_name}' added with deadline '{deadline}'.")
+        st.success(f"Project '{project_name}' added.")
 
     # View projects
     projects = view_projects(user_id)
     if projects:
         st.subheader("Your Projects:")
         for project in projects:
-            st.write(f"Project: {project[1]}, Deadline: {project[2]}")
+            st.write(f"Project: {project[1]}, Description: {project[1]}")
             
             # Update deadline form
             with st.form(key=f"update_project_{project[0]}"):
-                new_deadline = st.date_input("New Deadline:", min_value=datetime.today())
-                update_button = st.form_submit_button("Update Project Deadline")
+                new_deadline = st.text_input("New Description:")
+                update_button = st.form_submit_button("Update Project Description")
 
             if update_button:
                 # Update project deadline

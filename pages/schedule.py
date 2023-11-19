@@ -1,7 +1,10 @@
 # schedule.py
 import streamlit as st
 import sqlite3
-
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+st.set_option('deprecation.showPyplotGlobalUse', False)
 def view_schedule(user_id):
     conn = sqlite3.connect("data/student_tracker.db")
     cursor = conn.cursor()
@@ -38,15 +41,103 @@ def view_schedule(user_id):
 
     return classes, assignments, exams, meetings, internships, projects, quizzes, todos, files
 
-def display_schedule_page():
-    st.title("Schedule")
+def view_data(user_id):
+        conn = sqlite3.connect("data/student_tracker.db")
+        cursor = conn.cursor()
 
+        # You can customize the query based on your table structure
+        cursor.execute("SELECT COUNT(*) FROM classes WHERE user_id = ?", (user_id,))
+        class_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM assignments WHERE user_id = ?", (user_id,))
+        assignment_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM exams WHERE user_id = ?", (user_id,))
+        exam_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM meetings WHERE user_id = ?", (user_id,))
+        meeting_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM internship WHERE user_id = ?", (user_id,))
+        internship_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM projects WHERE user_id = ?", (user_id,))
+        project_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM quiz WHERE user_id = ?", (user_id,))
+        quiz_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM todo WHERE user_id = ?", (user_id,))
+        todo_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM files WHERE user_id = ?", (user_id,))
+        file_count = cursor.fetchone()[0]
+
+        conn.close()
+
+        return (
+            class_count,
+            assignment_count,
+            exam_count,
+            meeting_count,
+            internship_count,
+            project_count,
+            quiz_count,
+            todo_count,
+            file_count
+        )
+
+
+def plot_bar_graph(data, numbers):
+
+# Create a DataFrame from the input data
+    df = pd.DataFrame(data, columns=['Category', 'Value'])
+    
+    
+    plt.figure(figsize=(8, 3))  # Set the background color to black
+    plt.bar(df['Category'], df['Value'])
+    
+    plt.ylabel('Number of items')
+
+    plt.xticks(rotation=45)
+
+    plt.yticks(np.arange(0, max(numbers) + 1, 1))
+
+    # Display the plot using Streamlit
+    st.pyplot()
+      
+
+
+def display_schedule_page():
+    
     user_id = st.session_state.user_id
+    
+    data = [
+        "class",
+        "assignment",
+        "exam",
+        "meeting",
+        "internship",
+        "project",
+        "quiz",
+        "todo",
+        "file"
+     ] 
+    
+    numbers = view_data(user_id)
+    # print([(data[i], numbers[i]) for i in range(len(data))])
+    # print(numbers)
+    # print(data)
+    
+    # Display counts as comments
+    plot_bar_graph(zip(data, numbers), numbers)
+
+   
+    st.title("Schedule")
 
     # View schedule
     classes, assignments, exams, meetings, internships, projects, quizzes, todos, files = view_schedule(user_id)
 
-    st.subheader("Your Schedule:")
     
     # Display classes
     if classes:
@@ -100,4 +191,4 @@ def display_schedule_page():
     if files:
         st.subheader("Files:")
         for file_info in files:
-            st.write(f"File: {file_info[1]}, Path: {file_info[2]}")
+            st.write(f"File: {file_info[1]}")
