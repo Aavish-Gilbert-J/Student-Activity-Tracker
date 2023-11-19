@@ -92,51 +92,6 @@ def update_user_role(user_id, new_role):
     conn.commit()
     conn.close()
 
-# def display_user_management_page():
-#     st.title("User Management")
-
-#     # Create users table if not exists
-#     create_users_table()
-
-#     # View users
-#     users = view_users()
-#     if users:
-#         st.subheader("Existing Users:")
-#         for user in users:
-#             st.write(f"Username: {user[1]}, Role: {user[3]}")
-            
-#             # Update role form
-#             with st.form(key=f"update_user_{user[0]}"):
-#                 new_role = st.selectbox("New Role:", ["Student", "Teacher", "Internship Manager", "Admin"])
-#                 update_button = st.form_submit_button("Update User Role")
-
-#             if update_button:
-#                 # Update user role
-#                 update_user_role(user[0], new_role)
-#                 st.success(f"Role for '{user[1]}' updated to '{new_role}'.")
-            
-#             # Delete user button
-#             if st.button(f"Delete {user[1]}"):
-#                 # Delete user
-#                 delete_user(user[0])
-#                 st.success(f"User '{user[1]}' deleted.")
-
-#     else:
-#         st.info("No users found.")
-
-    # # Add user form
-    # st.subheader("Sign Up:")
-    # with st.form("add_user_form"):
-    #     new_username = st.text_input("Username:")
-    #     new_password = st.text_input("Password:", type="password")
-    #     new_role = st.selectbox("Role:", ["Student", "Teacher", "Internship Manager", "Admin"])
-    #     add_user_button = st.form_submit_button("Add User")
-
-    # if add_user_button:
-    #     # Add new user to the database
-    #     add_user(new_username, new_password, new_role)
-    #     st.success(f"User '{new_username}' added with role '{new_role}'.")
-
 from datetime import datetime
 
 def authenticate_user(username, password):
@@ -154,32 +109,6 @@ def display_user_management_page():
 
     # Create users table if not exists
     create_users_table()
-
-    # View users
-    users = view_users()
-    if users:
-        st.subheader("Existing Users:")
-        for user in users:
-            st.write(f"Username: {user[1]}, Role: {user[3]}")
-            
-            # Update role form
-            with st.form(key=f"update_user_{user[0]}"):
-                new_role = st.selectbox("New Role:", ["Student", "Teacher", "Internship Manager", "Admin"])
-                update_button = st.form_submit_button("Update User Role")
-
-            if update_button:
-                # Update user role
-                update_user_role(user[0], new_role)
-                st.success(f"Role for '{user[1]}' updated to '{new_role}'.")
-            
-            # Delete user button
-            if st.button(f"Delete {user[1]}"):
-                # Delete user
-                delete_user(user[0])
-                st.success(f"User '{user[1]}' deleted.")
-
-    else:
-        st.info("No users found.")
 
     # Add user form
     st.subheader("Add New User:")
@@ -214,3 +143,28 @@ def display_user_management_page():
         except TypeError:
             st.error("Authentication failed. Please check your username and password.")
 
+# View users
+    users = view_users()
+    if users:
+        st.subheader("Existing Users:")
+        for user in users:
+            st.write(f"Username: {user[1]}, Role: {user[3]}")
+            
+            # Update role form
+            with st.form(key=f"update_user_{user[0]}"):
+                new_role = st.selectbox("New Role:", ["Student", "Teacher", "Internship Manager", "Admin"])
+                update_button = st.form_submit_button("Update User Role")
+
+            if update_button:
+                # Update user role
+                update_user_role(user[0], new_role)
+                st.success(f"Role for '{user[1]}' updated to '{new_role}'.")
+            
+            # Delete user button
+            if st.button(f"Delete {user[1]}"):
+                # Delete user
+                delete_user(user[0])
+                st.success(f"User '{user[1]}' deleted.")
+
+    else:
+        st.info("No users found.")
